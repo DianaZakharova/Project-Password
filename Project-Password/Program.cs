@@ -16,20 +16,7 @@ namespace Project_Password
         {
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);
-
-            Load first = new Load();
-            DateTime end = DateTime.Now + TimeSpan.FromSeconds(5);
-            first.Show();
-            while (end > DateTime.Now)
-            {
-                Application.DoEvents();
-            }
-            first.Close();
-            first.Dispose();
-
-            Application.Run(new MainForm());
- 
-
+            Application.Run(new Load());
         }
     }
 }
