@@ -69,7 +69,7 @@ namespace Project_Password
 
         private void OnAmbiguousChanged(object sender, EventArgs e)
         {
-            Generator.ExcludeAmbiguous = upperCaseCheckBox.Checked;
+            Generator.ExcludeAmbiguous = ambiguousCheckBox.Checked;
         }
 
         private void uniqueCheckBox_CheckedChanged(object sender, EventArgs e)

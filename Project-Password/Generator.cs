@@ -13,7 +13,7 @@ namespace Project_Password
         private static string UpperCase { get; } = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
         private static string Symbols { get; } = "~`'!@#$%^&*()_-+={}[]|\\:\";<,>.?/";
         private static string Numbers { get; } = "0123456789";
-        private static string Similars { get; } = "il1Lo0O";
+        private static string Similars { get; } = "|Iil1Lo0O"; //исключаемые символы
         private static string Ambiguous { get; } = "{}[]()/\\'\"`~,;:.<>";
 
         public static List<LoginPassword> LoadedPasswords { get; set; } = new List<LoginPassword>();
@@ -58,13 +58,6 @@ namespace Project_Password
             if (UseSymbols)
             {
                 charSearchList.AddRange(Symbols);
-                if (ExcludeAmbiguous)
-                {
-                    foreach (char excludeChar in Ambiguous)
-                    {
-                        charSearchList.Remove(excludeChar);
-                    }
-                }
             }
             if (UseNumbers)
             {
@@ -73,6 +66,13 @@ namespace Project_Password
             if (ExcludeSimilar)
             {
                 foreach (char excludeChar in Similars)
+                {
+                    charSearchList.Remove(excludeChar);
+                }
+            }
+            if (ExcludeAmbiguous)
+            {
+                foreach (char excludeChar in Ambiguous)
                 {
                     charSearchList.Remove(excludeChar);
                 }
@@ -97,6 +97,7 @@ namespace Project_Password
             return generated;
         }
 
+
         private string GenerateFromList(List<char> collection)
         {
             StringBuilder passwordBuilder = new StringBuilder();
@@ -104,7 +105,42 @@ namespace Project_Password
             {
                 passwordBuilder.Append(collection[RndGen.Next(0, collection.Count())]);
             }
-            return passwordBuilder.ToString();
+            string generated = passwordBuilder.ToString();
+            if (Length > 1 && (UseUpperCase || UseLowerCase))
+            {
+                bool upperCaseNotUsed = UseUpperCase && !generated.Any(x => UpperCase.Contains(x));
+                bool lowerCaseNotUsed = UseLowerCase && !generated.Any(x => UpperCase.ToLower().Contains(x));
+                List<int> possiblePositions = new List<int>();
+                for (int i = 0; i < Length; i++)
+                {
+                    possiblePositions.Add(i);
+                }
+                StringBuilder builder = new StringBuilder(generated);
+                if (upperCaseNotUsed && lowerCaseNotUsed)
+                {
+                    int upperPosition = possiblePositions[RndGen.Next(0, possiblePositions.Count)];
+                    possiblePositions.Remove(upperPosition);
+                    builder.Remove(upperPosition, 1);
+                    builder.Insert(upperPosition, UpperCase[RndGen.Next(0, UpperCase.Length)]);
+                    int lowerPosition = possiblePositions[RndGen.Next(0, possiblePositions.Count)];
+                    builder.Remove(lowerPosition, 1);
+                    builder.Insert(lowerPosition, UpperCase.ToLower()[RndGen.Next(0, UpperCase.Length)]);
+                }
+                else if (upperCaseNotUsed)
+                {
+                    int upperPosition = possiblePositions[RndGen.Next(0, possiblePositions.Count)];
+                    builder.Remove(upperPosition, 1);
+                    builder.Insert(upperPosition, UpperCase[RndGen.Next(0, UpperCase.Length)]);
+                }
+                else if (lowerCaseNotUsed)
+                {
+                    int lowerPosition = possiblePositions[RndGen.Next(0, possiblePositions.Count)];
+                    builder.Remove(lowerPosition, 1);
+                    builder.Insert(lowerPosition, UpperCase.ToLower()[RndGen.Next(0, UpperCase.Length)]);
+                }
+                generated = builder.ToString();
+            }
+            return generated;
         }
 
         public void SaveJson()
