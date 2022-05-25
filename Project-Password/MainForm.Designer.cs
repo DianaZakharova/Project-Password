@@ -64,7 +64,7 @@
             this.topLabel.ForeColor = System.Drawing.Color.White;
             this.topLabel.Location = new System.Drawing.Point(0, 0);
             this.topLabel.Name = "topLabel";
-            this.topLabel.Size = new System.Drawing.Size(770, 75);
+            this.topLabel.Size = new System.Drawing.Size(810, 75);
             this.topLabel.TabIndex = 0;
             this.topLabel.Text = "Password Generator";
             this.topLabel.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
@@ -75,7 +75,7 @@
             this.whiteBar.Dock = System.Windows.Forms.DockStyle.Top;
             this.whiteBar.Location = new System.Drawing.Point(0, 75);
             this.whiteBar.Name = "whiteBar";
-            this.whiteBar.Size = new System.Drawing.Size(770, 10);
+            this.whiteBar.Size = new System.Drawing.Size(810, 10);
             this.whiteBar.TabIndex = 1;
             // 
             // lengthLabel
@@ -163,7 +163,7 @@
             this.lengthUpDown.Font = new System.Drawing.Font("Microsoft JhengHei UI", 9.75F);
             this.lengthUpDown.Location = new System.Drawing.Point(281, 101);
             this.lengthUpDown.Minimum = new decimal(new int[] {
-            1,
+            6,
             0,
             0,
             0});
@@ -171,7 +171,7 @@
             this.lengthUpDown.Size = new System.Drawing.Size(135, 24);
             this.lengthUpDown.TabIndex = 10;
             this.lengthUpDown.Value = new decimal(new int[] {
-            1,
+            6,
             0,
             0,
             0});
@@ -310,14 +310,14 @@
             // 
             // generatedTextBox
             // 
-            this.generatedTextBox.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left)
+            this.generatedTextBox.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
             this.generatedTextBox.Font = new System.Drawing.Font("Microsoft JhengHei UI", 9.75F);
             this.generatedTextBox.Location = new System.Drawing.Point(281, 354);
             this.generatedTextBox.MinimumSize = new System.Drawing.Size(292, 22);
             this.generatedTextBox.Name = "generatedTextBox";
             this.generatedTextBox.ReadOnly = true;
-            this.generatedTextBox.Size = new System.Drawing.Size(292, 24);
+            this.generatedTextBox.Size = new System.Drawing.Size(332, 24);
             this.generatedTextBox.TabIndex = 22;
             // 
             // loginLabel
@@ -325,7 +325,7 @@
             this.loginLabel.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
             this.loginLabel.AutoSize = true;
             this.loginLabel.Font = new System.Drawing.Font("Microsoft JhengHei UI", 9.75F);
-            this.loginLabel.Location = new System.Drawing.Point(538, 104);
+            this.loginLabel.Location = new System.Drawing.Point(578, 104);
             this.loginLabel.Name = "loginLabel";
             this.loginLabel.Size = new System.Drawing.Size(50, 17);
             this.loginLabel.TabIndex = 23;
@@ -335,16 +335,17 @@
             // 
             this.loginTextBox.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
             this.loginTextBox.Font = new System.Drawing.Font("Microsoft JhengHei UI", 9.75F);
-            this.loginTextBox.Location = new System.Drawing.Point(593, 100);
+            this.loginTextBox.Location = new System.Drawing.Point(633, 100);
             this.loginTextBox.Name = "loginTextBox";
             this.loginTextBox.Size = new System.Drawing.Size(165, 24);
             this.loginTextBox.TabIndex = 24;
             // 
             // loginTipLabel
             // 
+            this.loginTipLabel.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
             this.loginTipLabel.AutoSize = true;
             this.loginTipLabel.Font = new System.Drawing.Font("Microsoft JhengHei UI", 9F);
-            this.loginTipLabel.Location = new System.Drawing.Point(590, 131);
+            this.loginTipLabel.Location = new System.Drawing.Point(630, 131);
             this.loginTipLabel.Name = "loginTipLabel";
             this.loginTipLabel.Size = new System.Drawing.Size(170, 30);
             this.loginTipLabel.TabIndex = 25;
@@ -355,7 +356,7 @@
             this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 16F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(132)))), ((int)(((byte)(206)))), ((int)(((byte)(235)))));
-            this.ClientSize = new System.Drawing.Size(770, 532);
+            this.ClientSize = new System.Drawing.Size(810, 532);
             this.Controls.Add(this.loginTipLabel);
             this.Controls.Add(this.loginTextBox);
             this.Controls.Add(this.loginLabel);

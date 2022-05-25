@@ -13,7 +13,7 @@ namespace Project_Password
         private static string UpperCase { get; } = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
         private static string Symbols { get; } = "~`'!@#$%^&*()_-+={}[]|\\:\";<,>.?/";
         private static string Numbers { get; } = "0123456789";
-        private static string Similars { get; } = "|Iil1Lo0O"; //исключаемые символы
+        private static string Similars { get; } = "|Iil1Lo0O";
         private static string Ambiguous { get; } = "{}[]()/\\'\"`~,;:.<>";
 
         public static List<LoginPassword> LoadedPasswords { get; set; } = new List<LoginPassword>();
@@ -34,7 +34,30 @@ namespace Project_Password
         public static string[] rockYouPasswords { get; set; }
 
         private Random RndGen { get; set; }
-        public int Length { get; set; }
+
+        private int length;
+        public int Length
+        {
+            get
+            {
+                return length;
+            }
+            set
+            {
+                if (value < 6)
+                {
+                    length = 6;
+                }
+                else if (value > 100)
+                {
+                    length = 100;
+                }
+                else
+                {
+                    length = value;
+                }
+            }
+        }
         public bool UseSymbols { get; set; }
         public bool UseNumbers { get; set; }
         public bool UseLowerCase { get; set; }
@@ -43,6 +66,15 @@ namespace Project_Password
         public bool ExcludeAmbiguous { get; set; }
         public bool UseUnique { get; set; }
         private int RetryCount { get; set; }
+
+        private string ExcludeSimilarFromString(string value)
+        {
+            foreach (char excludeChar in Similars)
+            {
+                value = value.Replace(excludeChar.ToString(), "");
+            }
+            return value;
+        }
 
         public string GeneratePassword()
         {
@@ -97,7 +129,6 @@ namespace Project_Password
             return generated;
         }
 
-
         private string GenerateFromList(List<char> collection)
         {
             StringBuilder passwordBuilder = new StringBuilder();
@@ -106,7 +137,7 @@ namespace Project_Password
                 passwordBuilder.Append(collection[RndGen.Next(0, collection.Count())]);
             }
             string generated = passwordBuilder.ToString();
-            if (Length > 1 && (UseUpperCase || UseLowerCase))
+            if (UseUpperCase || UseLowerCase)
             {
                 bool upperCaseNotUsed = UseUpperCase && !generated.Any(x => UpperCase.Contains(x));
                 bool lowerCaseNotUsed = UseLowerCase && !generated.Any(x => UpperCase.ToLower().Contains(x));
@@ -121,10 +152,26 @@ namespace Project_Password
                     int upperPosition = possiblePositions[RndGen.Next(0, possiblePositions.Count)];
                     possiblePositions.Remove(upperPosition);
                     builder.Remove(upperPosition, 1);
-                    builder.Insert(upperPosition, UpperCase[RndGen.Next(0, UpperCase.Length)]);
+                    if (ExcludeSimilar)
+                    {
+                        string exclude = ExcludeSimilarFromString(UpperCase.ToLower());
+                        builder.Insert(upperPosition, exclude[RndGen.Next(0, exclude.Length)]);
+                    }
+                    else
+                    {
+                        builder.Insert(upperPosition, UpperCase[RndGen.Next(0, UpperCase.Length)]);
+                    }
                     int lowerPosition = possiblePositions[RndGen.Next(0, possiblePositions.Count)];
                     builder.Remove(lowerPosition, 1);
-                    builder.Insert(lowerPosition, UpperCase.ToLower()[RndGen.Next(0, UpperCase.Length)]);
+                    if (ExcludeSimilar)
+                    {
+                        string exclude = ExcludeSimilarFromString(UpperCase.ToLower());
+                        builder.Insert(upperPosition, exclude[RndGen.Next(0, exclude.Length)]);
+                    }
+                    else
+                    {
+                        builder.Insert(lowerPosition, UpperCase.ToLower()[RndGen.Next(0, UpperCase.Length)]);
+                    }
                 }
                 else if (upperCaseNotUsed)
                 {

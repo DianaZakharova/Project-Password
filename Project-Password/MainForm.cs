@@ -64,7 +64,7 @@ namespace Project_Password
 
         private void OnSimilarChanged(object sender, EventArgs e)
         {
-            Generator.ExcludeSimilar = upperCaseCheckBox.Checked;
+            Generator.ExcludeSimilar = similarCheckBox.Checked;
         }
 
         private void OnAmbiguousChanged(object sender, EventArgs e)
