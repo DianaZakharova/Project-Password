@@ -15,24 +15,8 @@ namespace Project_Password
         private static string Numbers { get; } = "0123456789";
         private static string Similars { get; } = "|Iil1Lo0O";
         private static string Ambiguous { get; } = "{}[]()/\\'\"`~,;:.<>";
-
         public static List<LoginPassword> LoadedPasswords { get; set; } = new List<LoginPassword>();
-
-        public static int GetNextPasswordId()
-        {
-            if (LoadedPasswords.Count == 0)
-            {
-                return 0;
-            }
-            return LoadedPasswords.Max(x => x.Id) + 1;
-        }
-        public Generator()
-        {
-            LoadedPasswords = new DataBaseInteractions().GetAllLoadedPasswords();
-            RndGen = new Random(Guid.NewGuid().GetHashCode());
-        }
         public static string[] rockYouPasswords { get; set; }
-
         private Random RndGen { get; set; }
 
         private int length;
@@ -67,13 +51,19 @@ namespace Project_Password
         public bool UseUnique { get; set; }
         private int RetryCount { get; set; }
 
-        private string ExcludeSimilarFromString(string value)
+        public Generator()
         {
-            foreach (char excludeChar in Similars)
+            LoadedPasswords = new DataBaseInteractions().GetAllLoadedPasswords();
+            RndGen = new Random(DateTime.Now.Millisecond);
+        }
+
+        public static int GetNextPasswordId()
+        {
+            if (LoadedPasswords.Count == 0)
             {
-                value = value.Replace(excludeChar.ToString(), "");
+                return 0;
             }
-            return value;
+            return LoadedPasswords.Max(x => x.Id) + 1;
         }
 
         public string GeneratePassword()
@@ -131,63 +121,108 @@ namespace Project_Password
 
         private string GenerateFromList(List<char> collection)
         {
-            StringBuilder passwordBuilder = new StringBuilder();
+            //Генерируем изначальный пароль
+            StringBuilder builder = new StringBuilder();
             for (int i = 0; i < Length; i++)
             {
-                passwordBuilder.Append(collection[RndGen.Next(0, collection.Count())]);
+                builder.Append(collection[RndGen.Next(0, collection.Count())]);
             }
-            string generated = passwordBuilder.ToString();
-            if (UseUpperCase || UseLowerCase)
+            string analyzeString = builder.ToString();
+            //Определяем разрешённые для вставки символы
+            string permittedUpperCase = UpperCase;
+            string permittedLowerCase = UpperCase.ToLower();
+            string permittedNumbers = Numbers;
+            string permittedSymbols = Symbols;
+            if (ExcludeSimilar)
             {
-                bool upperCaseNotUsed = UseUpperCase && !generated.Any(x => UpperCase.Contains(x));
-                bool lowerCaseNotUsed = UseLowerCase && !generated.Any(x => UpperCase.ToLower().Contains(x));
-                List<int> possiblePositions = new List<int>();
-                for (int i = 0; i < Length; i++)
+                foreach (char excludeChar in Similars)
                 {
+                    permittedUpperCase = permittedUpperCase.Replace(excludeChar.ToString(), "");
+                    permittedLowerCase = permittedLowerCase.Replace(excludeChar.ToString(), "");
+                    permittedNumbers = permittedNumbers.Replace(excludeChar.ToString(), "");
+                }
+            }
+            if (ExcludeAmbiguous)
+            {
+                foreach (char excludeChar in Ambiguous)
+                {
+                    permittedSymbols = permittedSymbols.Replace(excludeChar.ToString(), "");
+                }
+            }
+            //Определяем, надо ли производить дополнительные изменения
+            bool upperCaseNotUsed = UseUpperCase && !builder.ToString().Any(x => permittedUpperCase.Contains(x));
+            bool lowerCaseNotUsed = UseLowerCase && !builder.ToString().Any(x => permittedLowerCase.Contains(x));
+            bool numbersNotUsed = UseNumbers && !builder.ToString().Any(x => permittedNumbers.Contains(x));
+            bool symbolsNotUsed = UseSymbols && !builder.ToString().Any(x => permittedSymbols.Contains(x));
+            if (upperCaseNotUsed || lowerCaseNotUsed || numbersNotUsed || symbolsNotUsed)
+            {
+                //Определяем список позиций в строке, заместо которых будем вставлять
+                bool upperFound = false;
+                bool lowerFound = false;
+                bool numberFound = false;
+                bool symbolFound = false;
+                List<int> possiblePositions = new List<int>();
+                for (int i = 0; i
+                < builder.Length; i++)
+                {
+                    if (!upperFound && UseUpperCase && permittedUpperCase.Contains(analyzeString[i]))
+                    {
+                        upperFound = true;
+                        continue;
+                    }
+                    if (!lowerFound && UseLowerCase && permittedLowerCase.Contains(analyzeString[i]))
+                    {
+                        lowerFound = true;
+                        continue;
+                    }
+                    if (!numberFound && UseNumbers && permittedNumbers.Contains(analyzeString[i]))
+                    {
+                        numberFound = true;
+                        continue;
+                    }
+                    if (!symbolFound && UseSymbols && permittedSymbols.Contains(analyzeString[i]))
+                    {
+                        symbolFound = true;
+                        continue;
+                    }
                     possiblePositions.Add(i);
                 }
-                StringBuilder builder = new StringBuilder(generated);
-                if (upperCaseNotUsed && lowerCaseNotUsed)
+
+                int replacePosition = 0; //Переменная для замены позиций, которую далее будем использовать
+                                         //Если надо вставить Верхний регистр
+                if (upperCaseNotUsed)
                 {
-                    int upperPosition = possiblePositions[RndGen.Next(0, possiblePositions.Count)];
-                    possiblePositions.Remove(upperPosition);
-                    builder.Remove(upperPosition, 1);
-                    if (ExcludeSimilar)
-                    {
-                        string exclude = ExcludeSimilarFromString(UpperCase.ToLower());
-                        builder.Insert(upperPosition, exclude[RndGen.Next(0, exclude.Length)]);
-                    }
-                    else
-                    {
-                        builder.Insert(upperPosition, UpperCase[RndGen.Next(0, UpperCase.Length)]);
-                    }
-                    int lowerPosition = possiblePositions[RndGen.Next(0, possiblePositions.Count)];
-                    builder.Remove(lowerPosition, 1);
-                    if (ExcludeSimilar)
-                    {
-                        string exclude = ExcludeSimilarFromString(UpperCase.ToLower());
-                        builder.Insert(upperPosition, exclude[RndGen.Next(0, exclude.Length)]);
-                    }
-                    else
-                    {
-                        builder.Insert(lowerPosition, UpperCase.ToLower()[RndGen.Next(0, UpperCase.Length)]);
-                    }
+                    replacePosition = possiblePositions[RndGen.Next(0, possiblePositions.Count)];
+                    possiblePositions.Remove(replacePosition);
+                    builder.Remove(replacePosition, 1);
+                    builder.Insert(replacePosition, permittedUpperCase[RndGen.Next(0, permittedLowerCase.Length)]);
                 }
-                else if (upperCaseNotUsed)
+                //Если надо вставить нижний регистр
+                if (lowerCaseNotUsed)
                 {
-                    int upperPosition = possiblePositions[RndGen.Next(0, possiblePositions.Count)];
-                    builder.Remove(upperPosition, 1);
-                    builder.Insert(upperPosition, UpperCase[RndGen.Next(0, UpperCase.Length)]);
+                    replacePosition = possiblePositions[RndGen.Next(0, possiblePositions.Count)];
+                    possiblePositions.Remove(replacePosition);
+                    builder.Remove(replacePosition, 1);
+                    builder.Insert(replacePosition, permittedLowerCase[RndGen.Next(0, permittedLowerCase.Length)]);
                 }
-                else if (lowerCaseNotUsed)
+                //Если надо вставить цифру
+                if (numbersNotUsed)
                 {
-                    int lowerPosition = possiblePositions[RndGen.Next(0, possiblePositions.Count)];
-                    builder.Remove(lowerPosition, 1);
-                    builder.Insert(lowerPosition, UpperCase.ToLower()[RndGen.Next(0, UpperCase.Length)]);
+                    replacePosition = possiblePositions[RndGen.Next(0, possiblePositions.Count)];
+                    possiblePositions.Remove(replacePosition);
+                    builder.Remove(replacePosition, 1);
+                    builder.Insert(replacePosition, permittedNumbers[RndGen.Next(0, permittedNumbers.Length)]);
                 }
-                generated = builder.ToString();
+                //Если надо вставить символ
+                if (symbolsNotUsed)
+                {
+                    replacePosition = possiblePositions[RndGen.Next(0, possiblePositions.Count)];
+                    possiblePositions.Remove(replacePosition);
+                    builder.Remove(replacePosition, 1);
+                    builder.Insert(replacePosition, permittedSymbols[RndGen.Next(0, permittedSymbols.Length)]);
+                }
             }
-            return generated;
+            return builder.ToString();
         }
 
         public void SaveJson()
@@ -203,4 +238,5 @@ namespace Project_Password
         }
     }
 }
+
 
